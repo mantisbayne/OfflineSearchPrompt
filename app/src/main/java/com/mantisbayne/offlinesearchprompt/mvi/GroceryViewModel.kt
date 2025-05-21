@@ -30,8 +30,12 @@ class GroceryViewModel(
         when (intent) {
             is GroceryIntent.LoadData -> loadData()
             is GroceryIntent.ToggleFilter -> toggleFilter(intent.filter)
-            is GroceryIntent.Search -> {}
+            is GroceryIntent.Search -> performSearch(intent.query)
         }
+    }
+
+    private fun performSearch(query: String) {
+        TODO("Not yet implemented")
     }
 
     private fun loadData() {
@@ -43,13 +47,16 @@ class GroceryViewModel(
                 val categories = repository.getCategories()
                 val filters = categories.map { FilterItem(it) }
                 val groceryItems = items.map { it.toDisplayable() }
-                val filteredItems = groceryItems.filter { it.category == filters.first().label }
-                _viewState.value = _viewState.value.copy(
-                    loading = false,
-                    items = filteredItems,
-                    allItems = groceryItems,
-                    filters = filters
-                )
+                _viewState.update {viewState ->
+                    val filteredItems = groceryDisplayables(groceryItems, filters, viewState)
+
+                    viewState.copy(
+                        loading = false,
+                        items = filteredItems,
+                        allItems = groceryItems,
+                        filters = filters
+                    )
+                }
             } catch (e: Exception) {
                 _viewState.value = _viewState.value.copy(
                     loading = false,
@@ -58,6 +65,14 @@ class GroceryViewModel(
             }
         }
     }
+
+    private fun groceryDisplayables(
+        groceryItems: List<GroceryDisplayable>,
+        filters: List<FilterItem>,
+        viewState: GroceryViewState
+    ) = groceryItems
+        .filter { it.category == filters.first().label }
+        .applySearch(viewState.query)
 
     private fun toggleFilter(filterItem: FilterItem) {
         viewModelScope.launch {
@@ -70,43 +85,21 @@ class GroceryViewModel(
                     }
                 }
                 val selectedCategories = newFilters.filter { it.isSelected }.map { it.label }
+                val filteredItems = applyFilters(viewState, selectedCategories)
 
-                val filteredItems = viewState.allItems.filter { item ->
-                    selectedCategories.isEmpty() || item.category in selectedCategories
-                }
                 viewState.copy(filters = newFilters, items = filteredItems)
             }
         }
     }
-}
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun GroceryItem.toDisplayable(): DisplayableModels {
-    val expiration = ZonedDateTime.parse(expirationDate)
-    val now = ZonedDateTime.now()
-
-    val isExpired = expiration.isBefore(now)
-    val isHotDeal = discountPercent >= 20
-    val expiresInDays = java.time.Duration.between(now, expiration).toDays()
-
-    val expiresInText = if (isExpired) {
-        "Expired"
-    } else {
-        "Ends in $expiresInDays day${if (expiresInDays != 1L) "s" else ""}"
+    private fun applyFilters(
+        viewState: GroceryViewState,
+        selectedCategories: List<String>
+    ) = viewState.allItems.filter { item ->
+        selectedCategories.isEmpty() || item.category in selectedCategories
     }
-    val image = R.drawable.hotdog
-    val deals = listOf(
-        DealPillDisplayable(PillType.HotDeal),
-        DealPillDisplayable(PillType.Expired),
-        DealPillDisplayable(PillType.Other("$discountPercent% Off"))
-    )
-    return DisplayableModels(
-        name,
-        price,
-        image,
-        description,
-        expiresInText,
-        deals,
-        category
-    )
+        .applySearch(viewState.query)
+
+    private fun List<GroceryDisplayable>.applySearch(query: String) =
+        filter { it.name.contains(query, ignoreCase = true) }
 }
