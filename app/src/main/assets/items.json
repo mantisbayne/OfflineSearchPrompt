@@ -5,7 +5,9 @@
     "price": "$1.49 / lb",
     "discountPercent": 10,
     "imageUrl": "https://via.placeholder.com/150",
-    "expirationDate": "2025-05-25T23:59:59Z"
+    "description":"Product for sale",
+    "expirationDate": "2025-05-25T23:59:59Z",
+    "category": "Fruits"
   },
   {
     "id": 2,
@@ -13,7 +15,9 @@
     "price": "$0.99 each",
     "discountPercent": 25,
     "imageUrl": "https://via.placeholder.com/150",
-    "expirationDate": "2025-05-21T23:59:59Z"
+    "description": "Product for sale",
+    "expirationDate": "2025-05-21T23:59:59Z",
+    "category": "Fruits"
   },
   {
     "id": 3,
@@ -21,7 +25,9 @@
     "price": "$4.29",
     "discountPercent": 0,
     "imageUrl": "https://via.placeholder.com/150",
-    "expirationDate": "2025-05-19T23:59:59Z"
+    "description": "Product for sale",
+    "expirationDate": "2025-05-19T23:59:59Z",
+    "category": "Dairy"
   },
   {
     "id": 4,
@@ -29,7 +35,9 @@
     "price": "$6.99",
     "discountPercent": 30,
     "imageUrl": "https://via.placeholder.com/150",
-    "expirationDate": "2025-05-22T23:59:59Z"
+    "description": "Product for sale",
+    "expirationDate": "2025-05-22T23:59:59Z",
+    "category": "Condiments"
   },
   {
     "id": 5,
@@ -37,6 +45,8 @@
     "price": "$3.49",
     "discountPercent": 5,
     "imageUrl": "https://via.placeholder.com/150",
-    "expirationDate": "2025-05-15T23:59:59Z"
+    "description": "Product for sale",
+    "expirationDate": "2025-05-15T23:59:59Z",
+    "category": "Grains"
   }
 ]

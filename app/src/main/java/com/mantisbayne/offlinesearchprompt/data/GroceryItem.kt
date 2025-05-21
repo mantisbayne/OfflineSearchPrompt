@@ -9,5 +9,7 @@ data class GroceryItem(
     val price: String = "",
     val discountPercent: Int = 0,
     val imageUrl: String = "",
-    val expirationDate: String = ""
+    val description: String = "",
+    val expirationDate: String = "",
+    val category: String = ""
 )
