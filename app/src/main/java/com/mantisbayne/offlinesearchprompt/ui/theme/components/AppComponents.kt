@@ -16,9 +16,12 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CardComponent(content: @Composable () -> Unit) {
+fun CardComponent(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
         shape = RoundedCornerShape(8.dp),

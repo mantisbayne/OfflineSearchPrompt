@@ -7,7 +7,7 @@
     "imageUrl": "https://via.placeholder.com/150",
     "description":"Product for sale",
     "expirationDate": "2025-05-25T23:59:59Z",
-    "category": "Fruits"
+    "category": "Fruit"
   },
   {
     "id": 2,
@@ -17,7 +17,7 @@
     "imageUrl": "https://via.placeholder.com/150",
     "description": "Product for sale",
     "expirationDate": "2025-05-21T23:59:59Z",
-    "category": "Fruits"
+    "category": "Fruit"
   },
   {
     "id": 3,
@@ -38,6 +38,96 @@
     "description": "Product for sale",
     "expirationDate": "2025-05-22T23:59:59Z",
     "category": "Condiments"
+  },
+  {
+    "id": 5,
+    "name": "Cereal",
+    "price": "$3.49",
+    "discountPercent": 5,
+    "imageUrl": "https://via.placeholder.com/150",
+    "description": "Product for sale",
+    "expirationDate": "2025-05-15T23:59:59Z",
+    "category": "Grains"
+  },
+  {
+    "id": 5,
+    "name": "Cereal",
+    "price": "$3.49",
+    "discountPercent": 5,
+    "imageUrl": "https://via.placeholder.com/150",
+    "description": "Product for sale",
+    "expirationDate": "2025-05-15T23:59:59Z",
+    "category": "Grains"
+  },
+  {
+    "id": 5,
+    "name": "Cereal",
+    "price": "$3.49",
+    "discountPercent": 5,
+    "imageUrl": "https://via.placeholder.com/150",
+    "description": "Product for sale",
+    "expirationDate": "2025-05-15T23:59:59Z",
+    "category": "Grains"
+  },
+  {
+    "id": 5,
+    "name": "Cereal",
+    "price": "$3.49",
+    "discountPercent": 5,
+    "imageUrl": "https://via.placeholder.com/150",
+    "description": "Product for sale",
+    "expirationDate": "2025-05-15T23:59:59Z",
+    "category": "Grains"
+  },
+  {
+    "id": 5,
+    "name": "Cereal",
+    "price": "$3.49",
+    "discountPercent": 5,
+    "imageUrl": "https://via.placeholder.com/150",
+    "description": "Product for sale",
+    "expirationDate": "2025-05-15T23:59:59Z",
+    "category": "Grains"
+  },
+  {
+    "id": 5,
+    "name": "Cereal",
+    "price": "$3.49",
+    "discountPercent": 5,
+    "imageUrl": "https://via.placeholder.com/150",
+    "description": "Product for sale",
+    "expirationDate": "2025-05-15T23:59:59Z",
+    "category": "Grains"
+  },
+  {
+    "id": 5,
+    "name": "Cereal",
+    "price": "$3.49",
+    "discountPercent": 5,
+    "imageUrl": "https://via.placeholder.com/150",
+    "description": "Product for sale",
+    "expirationDate": "2025-05-15T23:59:59Z",
+    "category": "Grains"
+  },
+  {
+    "id": 5,
+    "name": "Cereal",
+    "price": "$3.49",
+    "discountPercent": 5,
+    "imageUrl": "https://via.placeholder.com/150",
+    "description": "Product for sale",
+    "expirationDate": "2025-05-15T23:59:59Z",
+    "category": "Grains"
+  },
+  {
+    "id": 5,
+    "name": "Cereal",
+    "price": "$3.49",
+    "discountPercent": 5,
+    "imageUrl": "https://via.placeholder.com/150",
+    "description": "Product for sale",
+    "expirationDate": "2025-05-15T23:59:59Z",
+    "category": "Grains"
   },
   {
     "id": 5,

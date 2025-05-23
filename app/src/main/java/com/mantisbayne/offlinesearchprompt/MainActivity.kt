@@ -10,6 +10,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,12 +25,10 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -44,22 +44,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mantisbayne.offlinesearchprompt.data.GroceryRepositoryImpl
-import com.mantisbayne.offlinesearchprompt.mvi.DealPillDisplayable
-import com.mantisbayne.offlinesearchprompt.mvi.FilterItem
-import com.mantisbayne.offlinesearchprompt.mvi.GroceryDisplayable
-import com.mantisbayne.offlinesearchprompt.mvi.GroceryIntent
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.model.DealPillDisplayable
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.model.FilterItem
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.model.DealDisplayable
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.GroceryIntent
 import com.mantisbayne.offlinesearchprompt.ui.theme.OfflineSearchPromptTheme
-import com.mantisbayne.offlinesearchprompt.mvi.GroceryViewModel
-import com.mantisbayne.offlinesearchprompt.mvi.GroceryViewModelFactory
-import com.mantisbayne.offlinesearchprompt.mvi.GroceryViewState
-import com.mantisbayne.offlinesearchprompt.mvi.PillType
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.GroceryViewModel
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.GroceryViewModelFactory
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.GroceryViewState
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.components.DealCard
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.components.DealPillList
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.model.PillType
 import com.mantisbayne.offlinesearchprompt.ui.theme.components.CardComponent
 import com.mantisbayne.offlinesearchprompt.ui.theme.components.PillComponent
 import kotlinx.coroutines.delay
@@ -143,18 +145,7 @@ fun GroceryScreen(
     ) {
 
         SearchField(query, { query = it}, { query = "" })
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items(viewState.filters) { filterItem ->
-                FilterItem(filterItem, onIntent)
-            }
-        }
-        GroceryItemList(viewState.items)
+        GroceryItemList(viewState.filters, viewState.items, onIntent)
     }
 }
 
@@ -216,7 +207,9 @@ fun FilterItem(
 
 @Composable
 fun GroceryItemList(
-    items: List<GroceryDisplayable>
+    filters: List<FilterItem>,
+    items: List<DealDisplayable>,
+    onIntent: (GroceryIntent) -> Unit
 ) {
     LazyColumn(
         Modifier
@@ -224,97 +217,25 @@ fun GroceryItemList(
             .padding(start = 16.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(items) { groceryItem ->
-            DealCard(groceryItem)
-        }
-    }
-}
-
-@Composable
-private fun DealCard(groceryItem: GroceryDisplayable) {
-    CardComponent {
-        DealCardContent(groceryItem)
-    }
-}
-
-@Composable
-private fun DealCardContent(groceryItem: GroceryDisplayable) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp)
-                .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-        ) {
-            Image(
-                modifier = Modifier
-                    .fillMaxSize(),
-                painter = painterResource(R.drawable.hotdog),
-                contentDescription = "${groceryItem.name} image"
-            )
-        }
-        Text(
-            text = groceryItem.name,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = groceryItem.description,
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
-            text = groceryItem.expiresInText,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
-        )
-        DealPillList(groceryItem.deals)
-        Button(
-            colors = ButtonDefaults.buttonColors(Color(0xFF2E7D32)),
-            onClick = {}
-        ) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "View Deal",
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-@Composable
-fun DealPillList(items: List<DealPillDisplayable>) {
-    LazyRow(
-        modifier = Modifier
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(items) { item ->
-            when (item.pillType) {
-                is PillType.HotDeal -> DealPill("Hot Deal", Color.Red)
-                is PillType.Expired -> DealPill("Expired", Color.LightGray)
-                is PillType.Other -> DealPill(item.pillType.infoText, Color(0xFFFFF176))
+            stickyHeader {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    items(filters) { filterItem ->
+                        FilterItem(filterItem, onIntent)
+                    }
+                }
             }
+        items(items) { groceryItem ->
+            DealCard(
+                groceryItem,
+                { onIntent(GroceryIntent.ToggleExpandDeal(groceryItem)) }
+            )
         }
-    }
-}
-
-@Composable
-fun DealPill(text: String, color: Color) {
-    PillComponent(color, RoundedCornerShape(25.dp)) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelSmall,
-            color = if (color == Color.Red) Color.White else Color.DarkGray
-        )
     }
 }
 
@@ -328,12 +249,12 @@ fun GreetingPreview() {
     )
     val image = R.drawable.hotdog
     val deals = listOf(
-        DealPillDisplayable(PillType.HotDeal),
-        DealPillDisplayable(PillType.Expired),
-        DealPillDisplayable(PillType.Other("Expired in 10 days"))
+        DealPillDisplayable("Hot Deal", Color.Red),
+        DealPillDisplayable("Expired", Color.LightGray),
+        DealPillDisplayable("10% off", Color.Green)
     )
     val items = listOf(
-        GroceryDisplayable(
+        DealDisplayable(
             name = "Banana",
             price = "1.99",
             image = image,
@@ -342,23 +263,25 @@ fun GreetingPreview() {
             deals = deals,
             category = "Fruit"
         ),
-        GroceryDisplayable(
+        DealDisplayable(
             "Cheese",
             "8.15",
             image,
             "This is some cheese on sale from the North of France. Gale the cook grew up there, where he learned all about specialized French cheeses",
             "10 days",
             deals,
-            category = "Fruit"
+            category = "Fruit",
+            true
         ),
-        GroceryDisplayable(
+        DealDisplayable(
             "Milk",
             "3.99",
             image,
             "This is a banana on sale",
             "33 days",
             deals,
-            "Fruit"
+            "Fruit",
+            true
         ),
     )
     val viewState = GroceryViewState(

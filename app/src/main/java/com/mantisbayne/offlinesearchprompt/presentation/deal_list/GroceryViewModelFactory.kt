@@ -1,4 +1,4 @@
-package com.mantisbayne.offlinesearchprompt.mvi
+package com.mantisbayne.offlinesearchprompt.presentation.deal_list
 
 import android.os.Build
 import androidx.annotation.RequiresApi

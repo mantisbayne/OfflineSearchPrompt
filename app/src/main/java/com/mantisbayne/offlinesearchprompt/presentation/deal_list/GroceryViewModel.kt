@@ -1,12 +1,14 @@
-package com.mantisbayne.offlinesearchprompt.mvi
+package com.mantisbayne.offlinesearchprompt.presentation.deal_list
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mantisbayne.offlinesearchprompt.data.GroceryRepository
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.model.DealDisplayable
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.model.FilterItem
+import com.mantisbayne.offlinesearchprompt.presentation.deal_list.model.toDisplayable
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +32,7 @@ class GroceryViewModel(
         when (intent) {
             is GroceryIntent.LoadData -> loadData()
             is GroceryIntent.ToggleFilter -> toggleFilter(intent.filter)
+            is GroceryIntent.ToggleExpandDeal -> toggleDeal(intent.deal)
             is GroceryIntent.Search -> performSearch(intent.query)
         }
     }
@@ -37,7 +40,8 @@ class GroceryViewModel(
     private fun performSearch(query: String) {
         viewModelScope.launch {
             _viewState.update { viewState ->
-                val selectedCategories: List<FilterItem> = viewState.filters.filter { it.isSelected }
+                val selectedCategories: List<FilterItem> =
+                    viewState.filters.filter { it.isSelected }
                 val items = applyFilters(viewState.allItems, selectedCategories, query)
 
                 viewState.copy(
@@ -49,10 +53,10 @@ class GroceryViewModel(
     }
 
     private fun applyFilters(
-        allItems: List<GroceryDisplayable>,
+        allItems: List<DealDisplayable>,
         selectedCategories: List<FilterItem>,
         query: String
-    ): List<GroceryDisplayable> {
+    ): List<DealDisplayable> {
         val selectedLabels = selectedCategories.map { it.label }
         return allItems
             .filter { selectedLabels.isEmpty() || it.category in selectedLabels }
@@ -85,7 +89,8 @@ class GroceryViewModel(
                             allItems,
                             newFilters,
                             viewState.query
-                        )
+                        ),
+                        filters = newFilters
                     )
                 }
             } catch (e: Exception) {
@@ -98,17 +103,33 @@ class GroceryViewModel(
     }
 
     private fun toggleFilter(filterItem: FilterItem) {
-        _viewState.update { viewState ->
-            val updatedFilters = viewState.filters.map {
-                if (it.label == filterItem.label) it.copy(isSelected = !it.isSelected) else it
-            }
-            val selectedFilters = updatedFilters.filter { it.isSelected }
-            val filteredItems = applyFilters(viewState.allItems, selectedFilters, viewState.query)
+        viewModelScope.launch {
+            _viewState.update { viewState ->
+                val updatedFilters = viewState.filters.map {
+                    if (it.label == filterItem.label) it.copy(isSelected = !it.isSelected) else it
+                }
+                val selectedFilters = updatedFilters.filter { it.isSelected }
+                val filteredItems =
+                    applyFilters(viewState.allItems, selectedFilters, viewState.query)
 
-            viewState.copy(
-                filters = updatedFilters,
-                items = filteredItems
-            )
+                viewState.copy(
+                    filters = updatedFilters,
+                    items = filteredItems
+                )
+            }
+        }
+    }
+
+    private fun toggleDeal(deal: DealDisplayable) {
+        viewModelScope.launch {
+            _viewState.update { viewState ->
+                val updatedItems = viewState.items.map {
+                    if (it == deal) it.copy(isExpanded = !it.isExpanded) else it.copy(isExpanded = false)
+                }
+                viewState.copy(
+                    items = updatedItems
+                )
+            }
         }
     }
 }
