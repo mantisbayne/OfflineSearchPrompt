@@ -15,7 +15,7 @@ data class GroceryDisplayable(
     val description: String,
     val expiresInText: String,
     val deals: List<DealPillDisplayable>,
-    val category: String = ""
+    val category: String
 )
 
 data class DealPillDisplayable(

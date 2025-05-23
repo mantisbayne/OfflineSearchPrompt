@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 
 interface GroceryRepository {
     fun getDeals(): List<GroceryItem>
-    fun getCategories(): List<String>
+    fun getFilters(): List<String>
 }
 
 class GroceryRepositoryImpl(private val context: Context) : GroceryRepository {
@@ -13,7 +13,7 @@ class GroceryRepositoryImpl(private val context: Context) : GroceryRepository {
         return deserialize("items.json")
     }
 
-    override fun getCategories(): List<String> {
+    override fun getFilters(): List<String> {
         return deserialize("categories.json")
     }
 

@@ -18,14 +18,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mantisbayne.offlinesearchprompt.data.GroceryRepositoryImpl
 import com.mantisbayne.offlinesearchprompt.mvi.DealPillDisplayable
 import com.mantisbayne.offlinesearchprompt.mvi.FilterItem
-import com.mantisbayne.offlinesearchprompt.mvi.DisplayableModels
+import com.mantisbayne.offlinesearchprompt.mvi.GroceryDisplayable
 import com.mantisbayne.offlinesearchprompt.mvi.GroceryIntent
 import com.mantisbayne.offlinesearchprompt.ui.theme.OfflineSearchPromptTheme
 import com.mantisbayne.offlinesearchprompt.mvi.GroceryViewModel
@@ -55,6 +62,7 @@ import com.mantisbayne.offlinesearchprompt.mvi.GroceryViewState
 import com.mantisbayne.offlinesearchprompt.mvi.PillType
 import com.mantisbayne.offlinesearchprompt.ui.theme.components.CardComponent
 import com.mantisbayne.offlinesearchprompt.ui.theme.components.PillComponent
+import kotlinx.coroutines.delay
 
 /*
 🧩 Requirements:
@@ -104,25 +112,12 @@ class MainActivity : ComponentActivity() {
                         when {
                             viewState.loading -> Text("Loading...")
                             !viewState.error.isNullOrBlank() -> Text(viewState.error ?: "Error")
-                            viewState.items.isNotEmpty() -> GroceryScreen(
+                            else -> GroceryScreen(
                                 viewState,
                                 viewModel::dispatch
                             )
                         }
                     }
-
-                    // launchedeffect to send intent
-                    // create GroceryScreen with state, onintent
-                    // Column with a Row with a TextField, clickable Text for toggle
-                    // LazyColumn
-                    // handle loading (show Loading...)
-                    // handle error (show error text)
-                    // create grocery item
-                    // set background color to LightGray or Color(0xFFFFE082) or White
-                    // Card with elevation, cardColors(), elevation
-                    // Row with Image, Spacer, Column with name price expires text
-                    // Show hot deal text below if is hot deal and not expired
-
                 }
             }
         }
@@ -135,7 +130,11 @@ fun GroceryScreen(
     onIntent: (GroceryIntent) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(query) {
+        delay(300)
+        onIntent(GroceryIntent.Search(query))
+    }
 
     Column(
         Modifier.fillMaxWidth(),
@@ -143,13 +142,7 @@ fun GroceryScreen(
         verticalArrangement = Arrangement.Center
     ) {
 
-        SearchBar(
-            inputField = {
-                TextField(
-                    value = query
-                )
-            }
-        ) { }
+        SearchField(query, { query = it}, { query = "" })
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
@@ -163,6 +156,41 @@ fun GroceryScreen(
         }
         GroceryItemList(viewState.items)
     }
+}
+
+@Composable
+private fun SearchField(
+    query: String,
+    onValueChange: (String) -> Unit,
+    onClearClicked: () -> Unit
+) {
+    TextField(
+        value = query,
+        onValueChange = onValueChange,
+        placeholder = { Text("Search deals…") },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search deals"
+            )
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(
+                    onClick = onClearClicked
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "clear"
+                    )
+                }
+            }
+        },
+        singleLine = true,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    )
 }
 
 @Composable
@@ -188,7 +216,7 @@ fun FilterItem(
 
 @Composable
 fun GroceryItemList(
-    items: List<DisplayableModels>
+    items: List<GroceryDisplayable>
 ) {
     LazyColumn(
         Modifier
@@ -203,14 +231,14 @@ fun GroceryItemList(
 }
 
 @Composable
-private fun DealCard(groceryItem: DisplayableModels) {
+private fun DealCard(groceryItem: GroceryDisplayable) {
     CardComponent {
         DealCardContent(groceryItem)
     }
 }
 
 @Composable
-private fun DealCardContent(groceryItem: DisplayableModels) {
+private fun DealCardContent(groceryItem: GroceryDisplayable) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -305,29 +333,32 @@ fun GreetingPreview() {
         DealPillDisplayable(PillType.Other("Expired in 10 days"))
     )
     val items = listOf(
-        DisplayableModels(
-            "Banana",
-            "1.99",
-            image,
-            "This is a banana on sale",
-            "Expires in 3 days",
-            deals
+        GroceryDisplayable(
+            name = "Banana",
+            price = "1.99",
+            image = image,
+            description = "This is a banana on sale",
+            expiresInText = "Expires in 3 days",
+            deals = deals,
+            category = "Fruit"
         ),
-        DisplayableModels(
+        GroceryDisplayable(
             "Cheese",
             "8.15",
             image,
             "This is some cheese on sale from the North of France. Gale the cook grew up there, where he learned all about specialized French cheeses",
             "10 days",
-            deals
+            deals,
+            category = "Fruit"
         ),
-        DisplayableModels(
+        GroceryDisplayable(
             "Milk",
             "3.99",
             image,
             "This is a banana on sale",
             "33 days",
-            deals
+            deals,
+            "Fruit"
         ),
     )
     val viewState = GroceryViewState(
